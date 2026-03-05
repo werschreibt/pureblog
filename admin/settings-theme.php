@@ -162,6 +162,8 @@ require __DIR__ . '/../includes/admin-head.php';
             <section class="section-divider">
                 <span class="title">Color Mode</span>
 
+                <p>Browse the <a target="_blank" href="https://pureblog.org/themes">PureBlog theme gallery</a> for inspiration.</p>
+
                 <label><b>Site color mode</b></label>
                 <label class="inline-radio" for="color_mode_light">
                     <input type="radio" id="color_mode_light" name="color_mode" value="light" <?= ($config['theme']['color_mode'] ?? 'light') === 'light' ? 'checked' : '' ?>>
