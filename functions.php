@@ -1681,15 +1681,28 @@ function filter_posts_by_query(array $posts, string $query): array
         return $posts;
     }
 
-    $needle = mb_strtolower($query);
-    return array_values(array_filter($posts, function (array $post) use ($needle): bool {
-        $haystack = implode(' ', [
+    // Split into individual words so multi-word queries match posts containing all terms
+    $words = preg_split('/\s+/u', mb_strtolower($query), -1, PREG_SPLIT_NO_EMPTY);
+    if (empty($words)) {
+        return $posts;
+    }
+
+    return array_values(array_filter($posts, function (array $post) use ($words): bool {
+        $raw = implode(' ', [
             (string) ($post['title'] ?? ''),
             (string) ($post['description'] ?? ''),
             (string) ($post['excerpt'] ?? ''),
             implode(' ', $post['tags'] ?? []),
         ]);
-        return mb_stripos($haystack, $needle) !== false;
+        // Strip emoji and other non-letter/digit/punctuation characters so they
+        // don't prevent matches (e.g. a title like "📚 Flybot" still matches "flybot")
+        $haystack = mb_strtolower((string) preg_replace('/[^\p{L}\p{N}\p{P}\s]/u', ' ', $raw));
+        foreach ($words as $word) {
+            if (mb_strpos($haystack, $word) === false) {
+                return false;
+            }
+        }
+        return true;
     }));
 }
 
